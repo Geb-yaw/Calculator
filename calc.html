@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safe Calculator</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { display:flex; justify-content:center; align-items:center; height:100vh; background:#f2f2f2; }
+    .calculator { width:90%; max-width:320px; }
+    .display { width:100%; height:60px; font-size:24px; text-align:right; padding:10px; border:1px solid #ccc; margin-bottom:10px; }
+    .buttons { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    button { padding:20px; font-size:20px; border:none; border-radius:5px; cursor:pointer; background:#4da6ff; color:white; transition:0.2s; }
+    button:hover { background:#1a8cff; }
+    .equal { grid-column: span 4; background:#80ffff; color:#000; }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <input type="text" class="display" id="display" placeholder="0" disabled>
+    <div class="buttons">
+      <button>1</button><button>2</button><button>3</button><button>/</button>
+      <button>4</button><button>5</button><button>6</button><button>*</button>
+      <button>7</button><button>8</button><button>9</button><button>-</button>
+      <button>0</button><button>.</button><button>C</button><button>+</button>
+      <button class="equal">=</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById("display");
+    const buttons = document.querySelectorAll("button");
+
+    // Safe evaluate function
+    function calculate(expr) {
+      try {
+        if (!/^[0-9+\-*/. ]+$/.test(expr)) return "Error";
+        return Function("return " + expr)();
+      } catch {
+        return "Error";
+      }
+    }
+
+    // Button click handling
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        if (button.textContent === "C") {
+          display.value = "";
+        } else if (button.textContent === "=") {
+          display.value = calculate(display.value);
+        } else {
+          display.value += button.textContent;
+        }
+      });
+    });
+
+    // Keyboard support
+    document.addEventListener("keydown", (e) => {
+      if ((/[0-9+\-*/.]/).test(e.key)) {
+        display.value += e.key;  // allow numbers/operators
+      } else if (e.key === "Enter") {
+        display.value = calculate(display.value); // Enter = equals
+      } else if (e.key === "Backspace") {
+        display.value = display.value.slice(0, -1); // delete last char
+      } else if (e.key.toLowerCase() === "c") {
+        display.value = ""; // press "c" to clear
+      }
+    });
+  </script>
+</body>
+</html>
